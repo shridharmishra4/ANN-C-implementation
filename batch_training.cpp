@@ -47,10 +47,16 @@ double dc_dw_output[numPatterns][output] = {0.0};
 
 double trainInputs[numPatterns][input] = {0};
 double trainOutput[numPatterns][output] = {0};
+
 double validationinput[numPatterns][input]= {0};
-double validationoutput[numPatterns][input]= {0};
+double validationoutput[numPatterns][output]= {0};
+
 double testinput[numPatterns][input] = {0};
 double testoutput[numPatterns][output] = {0};
+double inputset1[numPatterns]={0};
+double inputset2[numPatterns]={0};
+double inputset3[numPatterns]={0};
+double outputset[numPatterns]={0};
 
 
 FILE * pFile;
@@ -147,6 +153,7 @@ void calcNetValidate(void)
 {
     ///calculate the outputs of the hidden layer 1 neurons
     int i = 0, j = 0;
+    errThisPat[0] = 0;
     for (i = 0; i < hidden1; ++i)
     {
         hiddenVal1[i] = 0.0 + bias1[i];
@@ -437,22 +444,31 @@ void displayResults(void)
         calcNet();
         for (j = 0; j < output; ++j)
         {
-            printf("pat = %d actual = %lf neural model = %lf\n", patNum + 1, trainOutput[patNum -1][output],outPred[j]);
+            printf("pat = %d actual = %lf neural model = %lf err = %lf\n", patNum + 1, trainOutput[patNum][j],outPred[j], errThisPat[j]);
         }
     }
 }
 
 void displayResultsValidation(void)
 {
+    //double validationrms = 0.0;
+    RMSerror = 0.0;
     for (int i = 0; i < numPatterns/5; ++i)
     {
+
         patNum = i*5;
         calcNetValidate();
         for (j = 0; j < output; ++j)
         {
-            printf("pat = %d actual = %lf neural model = %lf\n", patNum/5 + 1, trainOutput[patNum -1*5][output],outPred[j]);
+            printf("pat = [%d] actual = %lf neural model = %lf err = %lf\n", patNum/5, validationoutput[patNum][j],outPred[j],errThisPat[j]);
+            RMSerror = (RMSerror + (errThisPat[j] * errThisPat[j])) / output;
+            //validationrms =
         }
+
     }
+    RMSerror = RMSerror / numPatterns;
+    RMSerror = sqrt(RMSerror);
+    printf("\n\nRMS Error of validation data set = %lf\n",RMSerror);
 }
 
 //************************************
@@ -474,6 +490,24 @@ void calcOverallError(void)
     RMSerror = sqrt(RMSerror);
 }
 
+
+void calcValidationError(void)
+{
+    RMSerror = 0.0;
+    for (int i = 0; i < numPatterns/5; ++i)
+    {
+        patNum = i*5;
+        calcNetValidate();
+        for (j = 0; j < output; ++j)
+        {
+
+            RMSerror = (RMSerror + (errThisPat[j] * errThisPat[j])) / output;
+        }
+    }
+    RMSerror = RMSerror / numPatterns;
+    RMSerror = sqrt(RMSerror);
+
+}
 
 double Filter( double sample)
 {
@@ -498,7 +532,6 @@ void initData()
     FILE *fin,*fout,*asdf,*ftest,*fvalidate;
     double inp[7],op;
     int count=0,i,j;
-    double inputset1[numPatterns],inputset2[numPatterns],inputset3[numPatterns],outputset[numPatterns]={0};
     double *minmax1,*minmax2,*minmax3,*minmaxout;
 
     fin = fopen("training_input", "r");
@@ -524,6 +557,7 @@ void initData()
         validationinput[count][5] = inp[5];
         validationinput[count][6] = inp[6];
         validationoutput[count][0] = op;
+        //printf("%d %lf %lf \n",count,inp[0],op);
         //fprintf(fvalidate,"%lf %lf %lf %lf %lf %lf %lf\n",inp[0],inp[1],inp[2],inp[3],inp[4],inp[5],inp[6]);
         }
 
@@ -568,31 +602,9 @@ void initData()
     //fclose(fvalidate);
     //fclose(ftest);
 
-    //minmax1 = minmax(inputset1);
-//    minmax2 = minmax(inputset2);
-//    minmax3 = minmax(inputset3);
-//    minmaxout = minmax(outputset);
-
-    //printf(" %lf %lf\n",minmax1[0],minmax1[1]);
-//    printf(" %lf %lf\n",minmax2[0],minmax2[1]);
-//    printf(" %lf %lf\n",minmax3[0],minmax3[1]);
-//
-//    for(i=0; i<numPatterns; i++)
-//    {
-//
-//        trainInputs[i][0] = (trainInputs[i][0] - minmax1[1])/(minmax1[1]-minmax1[0]);
-//        trainInputs[i][1] = (trainInputs[i][1] - minmax2[1])/(minmax2[1]-minmax2[0]);
-//        trainInputs[i][2] = (trainInputs[i][2] - minmax3[1])/(minmax3[1]-minmax3[0]);
-//        trainOutput[i][0] = (trainOutput[i][0] - minmaxout[1])/(minmaxout[1]-minmaxout[0]);
-//
-//        //printf("%d %lf %lf %lf %lf\n",i, trainInputs[i][0],trainInputs[i][1],trainInputs[i][2],trainOutput[i][0]);
-//
-//    }
-
-
-
-
 }
+
+
 
 
 int main(void)
@@ -601,6 +613,7 @@ int main(void)
     // seed random number function
 
     //pFile = fopen ("f.txt","w");
+
 
 
     srand(time(NULL));
@@ -638,10 +651,15 @@ int main(void)
         sum_and_update();
         //printf("sum output delta %lf ",sumdeltaoutput[0]);
         //display the overall network error after each epoch
+        ///to do: Add save network.
         calcOverallError();
-        moving_avg = Filter(RMSerror);
-        //float truncated = trunc(moving_avg*10000)/10000;
         printf("epoch %d error = %lf \n",j,RMSerror);
+
+
+        //calcValidationError();
+        //moving_avg = Filter(RMSerror);
+        //float truncated = trunc(moving_avg*10000)/10000;
+        //printf("epoch %d error = %lf \n",j,RMSerror);
 
 //        if(RMSerror > moving_avg && j>1000 )
 //        {
@@ -666,6 +684,7 @@ int main(void)
     printf("------------------------------------------------------------\n");
     printf("------------------------------------------------------------\n");
 
+    displayResultsValidation();
     //displayResults();
     //fclose(pFile);
 
