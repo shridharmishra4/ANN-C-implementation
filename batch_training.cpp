@@ -8,9 +8,9 @@
 #define hidden2  10
 #define output 1
 #define numPatterns 1999
-#define numEpochs 5000
+#define numEpochs 1500
 #define stoping_error 0.01
-#define lR 0.013
+#define lR 0.005
 #define n 10
 
 double buffer[n]= {0};
@@ -442,6 +442,18 @@ void displayResults(void)
     }
 }
 
+void displayResultsValidation(void)
+{
+    for (int i = 0; i < numPatterns/5; ++i)
+    {
+        patNum = i*5;
+        calcNetValidate();
+        for (j = 0; j < output; ++j)
+        {
+            printf("pat = %d actual = %lf neural model = %lf\n", patNum/5 + 1, trainOutput[patNum -1*5][output],outPred[j]);
+        }
+    }
+}
 
 //************************************
 // calculate the overall error
@@ -483,7 +495,7 @@ double Filter( double sample)
 
 void initData()
 {
-    FILE *fin,*fout;
+    FILE *fin,*fout,*asdf,*ftest,*fvalidate;
     double inp[7],op;
     int count=0,i,j;
     double inputset1[numPatterns],inputset2[numPatterns],inputset3[numPatterns],outputset[numPatterns]={0};
@@ -491,7 +503,9 @@ void initData()
 
     fin = fopen("training_input", "r");
     fout = fopen("training_output", "r");
-
+    //asdf = fopen("input","w");
+    //fvalidate = fopen("validate","w");
+    //ftest = fopen("test","w");
     printf("Init inputs");
     //pFile = fopen ("f1.txt","w");
     while(!feof(fin))
@@ -499,35 +513,34 @@ void initData()
 
         fscanf(fin,"%lf %lf %lf %lf %lf %lf %lf\n",&inp[0],&inp[1],&inp[2],&inp[3],&inp[4],&inp[5],&inp[6]);
         fscanf(fout,"%lf\n",&op);
-//
-//        if (count%5 == 0){
-//        printf("hel %d\n",count);
-//        validationinput[count][0] = inp[0];
-//        validationinput[count][1] = inp[1];
-//        validationinput[count][2] = inp[2];
-//        validationinput[count][3] = inp[3];
-//        validationinput[count][4] = inp[4];
-//        validationinput[count][5] = inp[5];
-//        validationinput[count][6] = inp[6];
-//        validationoutput[count][0] = op;
-//        //fprintf(fvalidate,"%lf %lf %lf %lf %lf %lf %lf\n",inp[0],inp[1],inp[2],inp[3],inp[4],inp[5],inp[6]);
-//        }
-//
-//        else if(count%7 == 0){
-//        testinput[count][0] = inp[0];
-//        testinput[count][1] = inp[1];
-//        testinput[count][2] = inp[2];
-//        testinput[count][3] = inp[3];
-//        testinput[count][4] = inp[4];
-//        testinput[count][5] = inp[5];
-//        testinput[count][6] = inp[6];
-//        testoutput[count][0] = op;
-//        //fprintf(ftest,"%lf %lf %lf %lf %lf %lf %lf\n",inp[0],inp[1],inp[2],inp[3],inp[4],inp[5],inp[6]);
-//
-//
-//        }
-//
-//        else{
+
+        if (count%5 == 0){
+        //printf("hel %d\n",count);
+        validationinput[count][0] = inp[0];
+        validationinput[count][1] = inp[1];
+        validationinput[count][2] = inp[2];
+        validationinput[count][3] = inp[3];
+        validationinput[count][4] = inp[4];
+        validationinput[count][5] = inp[5];
+        validationinput[count][6] = inp[6];
+        validationoutput[count][0] = op;
+        //fprintf(fvalidate,"%lf %lf %lf %lf %lf %lf %lf\n",inp[0],inp[1],inp[2],inp[3],inp[4],inp[5],inp[6]);
+        }
+
+        else if(count%7 == 0){
+        testinput[count][0] = inp[0];
+        testinput[count][1] = inp[1];
+        testinput[count][2] = inp[2];
+        testinput[count][3] = inp[3];
+        testinput[count][4] = inp[4];
+        testinput[count][5] = inp[5];
+        testinput[count][6] = inp[6];
+        testoutput[count][0] = op;
+        //fprintf(ftest,"%lf %lf %lf %lf %lf %lf %lf\n",inp[0],inp[1],inp[2],inp[3],inp[4],inp[5],inp[6]);
+
+        }
+
+        else{
         trainInputs[count][0] = inp[0];
         trainInputs[count][1] = inp[1];
         trainInputs[count][2] = inp[2];
@@ -538,7 +551,7 @@ void initData()
         trainOutput[count][0] = op;
         //fprintf(asdf,"%lf %lf %lf %lf %lf %lf %lf\n",inp[0],inp[1],inp[2],inp[3],inp[4],inp[5],inp[6]);
 
-        //}
+        }
 
         count++;
         if(count>numPatterns)
@@ -551,7 +564,9 @@ void initData()
 
     fclose(fin);
     fclose(fout);
-    //fclose(pFile);
+    //fclose(asdf);
+    //fclose(fvalidate);
+    //fclose(ftest);
 
     //minmax1 = minmax(inputset1);
 //    minmax2 = minmax(inputset2);
@@ -651,7 +666,7 @@ int main(void)
     printf("------------------------------------------------------------\n");
     printf("------------------------------------------------------------\n");
 
-    displayResults();
+    //displayResults();
     //fclose(pFile);
 
 
