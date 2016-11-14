@@ -8,9 +8,9 @@
 #define hidden2  10
 #define output 1
 #define numPatterns 1999
-#define numEpochs 2000
+#define numEpochs 20000
 #define stoping_error 0.03
-#define lR 0.005
+#define lR 0.009
 #define n 3
 
 double buffer[n] = {0};
@@ -522,11 +522,13 @@ void initData()
 int main(void)
 {
     double moving_avg = 0.0;
+    double bestvalidation = 9999;
+    int patience = 500;
     // seed random number function
-    FILE *validationerrorfile;
+    FILE *validationerrorfile, *test;
     //trainerror = fopen ("err_train.txt","w");
     validationerrorfile = fopen("err_validate.txt","w");
-
+    test = fopen("loopenter.txt","w");
     srand(time(NULL));
     // initiate the weights
     initWeights();
@@ -555,32 +557,71 @@ int main(void)
         calcOverallError();
         calcValidationError();
 
+        if(RMSerrorvalidation<bestvalidation){
+            bestvalidation = RMSerrorvalidation;
+        }
+
         //Write to file for graph plotting
         fprintf(validationerrorfile,"%lf %lf \n",RMSerrortrain,RMSerrorvalidation);
-        printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf \n",j,RMSerrortrain,RMSerrorvalidation);
+        printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf best =%lf pat=%d\n ",j,RMSerrortrain,RMSerrorvalidation,bestvalidation,patience);
 
 
         ///Early Stopping
         moving_avg = Filter(RMSerrorvalidation);
+
+
         if(RMSerrorvalidation<stoping_error)
         {
-            if((moving_avg-RMSerrorvalidation)<0.00001 )
+            //printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf fract =%lf best = %lf\n ",j,RMSerrortrain,RMSerrorvalidation,bestvalidation*0.99,bestvalidation);
+             if(RMSerrorvalidation<bestvalidation*0.99)
             {
-                //            if (RMSerrorvalidation > moving_avg+0.1){
-                //                continue;
-                //            }
-                //            else{
-                printf("difference => %f - %f = %lf\n",moving_avg,RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
-                //printf("Moving avg = %lf\n",moving_avg);
-                //printf("%lf\n",RMSerrorvalidation);
-                //displayResults();
-                exit(0);
-                //}
+                    patience = j + patience;
+                    //            if (RMSerrorvalidation > moving_avg+0.1){
+                    //                continue;
+                    //            }
+                    //            else{
+                    printf("\n\n\n\ndifference => %f - %f = %lf\n",moving_avg,RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
+
+                    fprintf(test,"\n\n\n\ndifference => %f - %f = %lf\n",moving_avg,RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
+                    //exit(0);
+                    //printf("Moving avg = %lf\n",moving_avg);
+                    //printf("%lf\n",RMSerrorvalidation);
+                    //displayResults();
+
+                    //}
+                }
+
+//            if(j>= patience){
+//                printf("\n\nexit\n");
+//                exit(0);
+//                }
+
             }
-        }
 
     }
+
+
+
+//        if(RMSerrorvalidation<stoping_error)
+//        {
+//            if((moving_avg-RMSerrorvalidation)<0.0001 )
+//            {
+//                //            if (RMSerrorvalidation > moving_avg+0.1){
+//                //                continue;
+//                //            }
+//                //            else{
+//                printf("difference => %f - %f = %lf\n",moving_avg,RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
+//                //printf("Moving avg = %lf\n",moving_avg);
+//                //printf("%lf\n",RMSerrorvalidation);
+//                //displayResults();
+//                exit(0);
+//                //}
+//            }
+//        }
+
+
     fclose(validationerrorfile);
+    fclose(test);
     ///training has finished
     ///display the results from training set
     printf("\n------------------------------------------------------------\n");
