@@ -104,7 +104,8 @@ void forwardPass(double inputarray[][input], double outputarray[][output])
 
         for (j = 0; j < input; ++j)
         {
-            hiddenVal1[i] = hiddenVal1[i] + (inputarray[patNum][j] * weights1[j][i]);
+            hiddenVal1[i] = hiddenVal1[i] + (inputarray[patNum][j] * \
+                                             weights1[j][i]);
 
         }
         hiddenVal1[i] = sigmoid(hiddenVal1[i]);
@@ -138,7 +139,8 @@ void forwardPass(double inputarray[][input], double outputarray[][output])
             outPred[i] = outPred[i] + (hiddenVal2[j] * weights3[j][i]);
         }
         //printf("\n output activation %lf  ", outPred[i]);
-        outPred[i] = sigmoid(outPred[i]); /// Thats the individual output layer neuron prediction
+        outPred[i] = sigmoid(outPred[i]);
+        /// Thats the individual output layer neuron prediction
         //printf("\n output activation %lf\n", outPred[i]);
 
 
@@ -159,12 +161,14 @@ void backprop()
 {
 
     /// Backpropagation
-    //printf("%lf %lf = error %lf\n",outPred[patNum],trainOutput[patNum],-(outPred[patNum] - trainOutput[patNum]));
+    //printf("%lf %lf = error %lf\n",outPred[patNum],\
+    trainOutput[patNum],-(outPred[patNum] - trainOutput[patNum]));
 
     //printf("\nInside backprop at %d pattern \n\n",patNum);
     for (i = 0; i < output; ++i)
-    {
-        output_delta[i] = -(trainOutput[patNum][i] - outPred[i]) * outPred[i] * (1 - outPred[i]);//output neuron delta
+{
+    output_delta[i] = -(trainOutput[patNum][i] - outPred[i]) * \
+                          outPred[i] * (1 - outPred[i]);//output neuron delta
         netoutputdelta[patNum][i] = output_delta[i];
         //sumdeltaoutput[i] = output_delta[i];
         //printf("netoutdelta[%d][%d] = %lf\n",patNum,i,output_delta[i]);
@@ -174,15 +178,16 @@ void backprop()
 
     //hidden2 to output delta weights
     for (i = 0; i < hidden2; ++i)
-    {
-        weightedsum = 0.0;
-        for (j = 0; j < output; ++j)
+{
+    weightedsum = 0.0;
+    for (j = 0; j < output; ++j)
         {
             weightedsum += output_delta[j] * weights3[i][j];
         }
 
 
-        hidden2delta[i] = weightedsum * hiddenVal2[i] * (1 - hiddenVal2[i]);
+        hidden2delta[i] = weightedsum * hiddenVal2[i] * \
+                          (1 - hiddenVal2[i]);
         nethidden2delta[patNum][i] = hidden2delta[i];
         //printf("hiddendelta 2 %lf\n",hidden2delta[i]);
 
@@ -191,14 +196,15 @@ void backprop()
 
     //hidden1 to hidden2 delta weights
     for (i = 0; i < hidden1; ++i)
-    {
-        weightedsum = 0.0;
-        for (j = 0; j < hidden2; ++j)
+{
+    weightedsum = 0.0;
+    for (j = 0; j < hidden2; ++j)
         {
             weightedsum += hidden2delta[j] * weights2[i][j];
         }
 
-        hidden1delta[i] = weightedsum * hiddenVal1[i] * (1 - hiddenVal1[i]);
+        hidden1delta[i] = weightedsum * hiddenVal1[i] * \
+                          (1 - hiddenVal1[i]);
         nethidden1delta[patNum][i] = hidden1delta[i];
         //printf("\nhiddendelta 1 %lf\n",hidden1delta[i]);
 
@@ -207,27 +213,30 @@ void backprop()
 
     ///dc_dw calculation
     for (i = 0; i < input; ++i)
-    {
-        for (j = 0; j < hidden1; ++j)
+{
+    for (j = 0; j < hidden1; ++j)
         {
-            dc_dw_hidden1[patNum][j] = hidden1delta[j] * trainInputs[patNum][i];
-            //printf("%lf \t",weights1[i][j]); //Calculated gradient * Old activation
+            dc_dw_hidden1[patNum][j] = hidden1delta[j] * \
+                                       trainInputs[patNum][i];
+            //printf("%lf \t",weights1[i][j]); //Calculated gradient *
+            //Old activation
         }
         //printf("\n");
     }
 
     for (i = 0; i < hidden1; ++i)
-    {
-        for (j = 0; j < hidden2; ++j)
+{
+    for (j = 0; j < hidden2; ++j)
         {
             dc_dw_hidden2[patNum][j] = hidden2delta[j] * hiddenVal1[i];
-            //printf("%lf \t",weights2[i][j]); //Calculated gradient * Old activation
+            //printf("%lf \t",weights2[i][j]); //Calculated gradient *
+            //Old activation
         }
         //printf("\n");
     }
     for (i = 0; i < hidden2; ++i)
-    {
-        for (j = 0; j < output; ++j)
+{
+    for (j = 0; j < output; ++j)
         {
             dc_dw_output[patNum][j] = output_delta[j] * hiddenVal2[i];
             //printf("%lf \t",weights3[i][j]);
@@ -239,6 +248,17 @@ void backprop()
 
 void sum_and_update()
 {
+    /*
+    Sums up all the error layerwise
+
+    netxxxxdelta[PatternIndex][NeuronIndex]--- It stores the ouput of each
+    neuron for each respective pattern.
+
+    sum_dc_dw_xxxxx - sum of all the error from all the neurons of a layer
+                      for each pattern
+    */
+
+
     double sum_dc_dw_output[output] = {0.0};
     double sum_dc_dw_hidden2[hidden2] = {0.0};
     double sum_dc_dw_hidden1[hidden1] = {0.0};
@@ -317,7 +337,8 @@ void sum_and_update()
         for (j = 0; j < hidden2; ++j)
         {
             weights2[i][j] -= lR * sum_dc_dw_hidden2[j];
-            //printf("%lf \t",weights2[i][j]); //Calculated gradient * Old activation
+            //printf("%lf \t",weights2[i][j]); //Calculated gradient * \
+            //Old activation
         }
         //printf("\n");
     }
@@ -342,7 +363,8 @@ double randrange()
     double r = 4 * sqrt(6.0 / (input + output)); //for Sigmoid
     const double MIN_RAND = 0, MAX_RAND = 1;
     const double range = MAX_RAND - MIN_RAND;
-    double random = range * ((((double) rand()) / (double) RAND_MAX)) + MIN_RAND;
+    double random = range * ((((double) rand()) / (double) RAND_MAX)) + \
+                    MIN_RAND;
     return random;
 }
 
@@ -388,7 +410,8 @@ void displayResults(void)
         forwardPass(testinput,testoutput);
         for (j = 0; j < output; ++j)
         {
-            printf("pat = %d actual = %lf neural model = %lf err = %lf\n", patNum + 1, testoutput[patNum][j],
+            printf("pat = %d actual = %lf neural model = %lf err = %lf\n", \
+                   patNum + 1, testoutput[patNum][j],
                    outPred[j], errThisPat[j]);
         }
     }
@@ -408,7 +431,8 @@ void calcOverallError(void)
         for (j = 0; j < output; ++j)
         {
 
-            RMSerrortrain = (RMSerrortrain + (errThisPat[j] * errThisPat[j])) / output;
+            RMSerrortrain = (RMSerrortrain + \
+                             (errThisPat[j] * errThisPat[j])) / output;
         }
     }
     RMSerrortrain = RMSerrortrain / numPatterns;
@@ -427,7 +451,8 @@ void calcValidationError(void)
         for (j = 0; j < output; ++j)
         {
 
-            RMSerrorvalidation = (RMSerrorvalidation + (errThisPat[j] * errThisPat[j])) / output;
+            RMSerrorvalidation = (RMSerrorvalidation + \
+                                  (errThisPat[j] * errThisPat[j])) / output;
         }
     }
     RMSerrorvalidation = RMSerrorvalidation / (numPatterns/5);
@@ -464,7 +489,8 @@ void initData()
     while (!feof(fin))
     {
 
-        fscanf(fin, "%lf %lf %lf %lf %lf %lf %lf\n", &inp[0], &inp[1], &inp[2], &inp[3], &inp[4], &inp[5], &inp[6]);
+        fscanf(fin, "%lf %lf %lf %lf %lf %lf %lf\n", &inp[0], \
+               &inp[1], &inp[2], &inp[3], &inp[4], &inp[5], &inp[6]);
         fscanf(fout, "%lf\n", &op);
 
         if (count % 5 == 0)
@@ -557,13 +583,17 @@ int main(void)
         calcOverallError();
         calcValidationError();
 
-        if(RMSerrorvalidation<bestvalidation){
+        if(RMSerrorvalidation<bestvalidation)
+        {
             bestvalidation = RMSerrorvalidation;
         }
 
         //Write to file for graph plotting
-        fprintf(validationerrorfile,"%lf %lf \n",RMSerrortrain,RMSerrorvalidation);
-        printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf best =%lf pat=%d\n ",j,RMSerrortrain,RMSerrorvalidation,bestvalidation,patience);
+        fprintf(validationerrorfile,"%lf %lf \n",RMSerrortrain, \
+                RMSerrorvalidation);
+        printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf \
+                best =%lf\n",j,RMSerrortrain,RMSerrorvalidation, \
+               bestvalidation);
 
 
         ///Early Stopping
@@ -572,31 +602,34 @@ int main(void)
 
         if(RMSerrorvalidation<stoping_error)
         {
-            //printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf fract =%lf best = %lf\n ",j,RMSerrortrain,RMSerrorvalidation,bestvalidation*0.99,bestvalidation);
-             if(RMSerrorvalidation<bestvalidation*0.99)
+            if(RMSerrorvalidation<bestvalidation*0.99)
             {
-                    patience = j + patience;
-                    //            if (RMSerrorvalidation > moving_avg+0.1){
-                    //                continue;
-                    //            }
-                    //            else{
-                    printf("\n\n\n\ndifference => %f - %f = %lf\n",moving_avg,RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
+                patience = j + patience;
+                //            if (RMSerrorvalidation > moving_avg+0.1){
+                //                continue;
+                //            }
+                //            else{
+                //printf("\n\n\n\ndifference => %f - %f = %lf\n",\
+                moving_avg,RMSerrorvalidation, \
+                (moving_avg-RMSerrorvalidation));
 
-                    fprintf(test,"\n\n\n\ndifference => %f - %f = %lf\n",moving_avg,RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
-                    //exit(0);
-                    //printf("Moving avg = %lf\n",moving_avg);
-                    //printf("%lf\n",RMSerrorvalidation);
-                    //displayResults();
+                fprintf(test,"\n\n\n\ndifference => %f - %f = %lf\n", \
+                        moving_avg,RMSerrorvalidation, \
+                        (moving_avg-RMSerrorvalidation));
+                //exit(0);
+                //printf("Moving avg = %lf\n",moving_avg);
+                //printf("%lf\n",RMSerrorvalidation);
+                //displayResults();
 
-                    //}
-                }
+                //}
+            }
 
 //            if(j>= patience){
 //                printf("\n\nexit\n");
 //                exit(0);
 //                }
 
-            }
+        }
 
     }
 
@@ -610,7 +643,8 @@ int main(void)
 //                //                continue;
 //                //            }
 //                //            else{
-//                printf("difference => %f - %f = %lf\n",moving_avg,RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
+//                printf("difference => %f - %f = %lf\n",moving_avg,\
+    RMSerrorvalidation,(moving_avg-RMSerrorvalidation));
 //                //printf("Moving avg = %lf\n",moving_avg);
 //                //printf("%lf\n",RMSerrorvalidation);
 //                //displayResults();
