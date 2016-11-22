@@ -8,13 +8,13 @@
 #define hidden2  10
 #define output 1
 #define numPatterns 1999
-#define numEpochs 15000
-#define stoping_error 0.03
-#define lR 0.01
+#define numEpochs 30000
+#define stoping_error 0.05
+#define lR 0.0001
 #define train_ratio 0.7
-#define validate_ratio 0.2
-#define test_ratio 0.1
-#define mini_batch_size 100
+#define validate_ratio 0.3
+#define test_ratio 0.0
+#define mini_batch_size 50
 
 #define mov_avg_range 3
 
@@ -558,7 +558,7 @@ void shuffle_data()
             trainInputs[count][5] = inp[index[count]][5];
             trainInputs[count][6] = inp[index[count]][6];
             trainOutput[count][0] = inp[index[count]][7];
-            //fprintf(a,"%d %lf %lf %lf %lf %lf %lf %lf\n",index[count],inp[index[count]][0],inp[index[count]][1],inp[index[count]][2],inp[index[count]][3],inp[index[count]][4],inp[index[count]][5],inp[index[count]][6]);
+//fprintf(a,"%d %lf %lf %lf %lf %lf %lf %lf\n",index[count],inp[index[count]][0],inp[index[count]][1],inp[index[count]][2],inp[index[count]][3],inp[index[count]][4],inp[index[count]][5],inp[index[count]][6]);
 
         }
 
@@ -572,6 +572,8 @@ void shuffle_data()
             validationinput[count][5] = inp[index[count]][5];
             validationinput[count][6] = inp[index[count]][6];
             validationoutput[count][0] = inp[index[count]][7];
+            //fprintf(a,"%d %lf %lf %lf %lf %lf %lf %lf\n",index[count],inp[index[count]][0],inp[index[count]][1],inp[index[count]][2],inp[index[count]][3],inp[index[count]][4],inp[index[count]][5],inp[index[count]][6]);
+
 
         }
         else
@@ -584,7 +586,7 @@ void shuffle_data()
             testinput[count][5] = inp[index[count]][5];
             testinput[count][6] = inp[index[count]][6];
             testoutput[count][0] = inp[index[count]][7];
-            //fprintf(ftest,"%lf %lf %lf %lf %lf %lf %lf\n",inp[0],inp[1],inp[2],inp[3],inp[4],inp[5],inp[6]);
+            //fprintf(a,"%d %lf %lf %lf %lf %lf %lf %lf\n",index[count],inp[index[count]][0],inp[index[count]][1],inp[index[count]][2],inp[index[count]][3],inp[index[count]][4],inp[index[count]][5],inp[index[count]][6]);
         }
 
         count++;
@@ -599,7 +601,7 @@ int main(void)
 {
     double moving_avg = 0.0;
     double bestvalidation = 999;
-    int patience = 500;
+    int patience = 600;
     // seed random number function
     FILE *validationerrorfile, *test;
     validationerrorfile = fopen("err_validate.txt","w");
@@ -638,17 +640,12 @@ int main(void)
         calcOverallError();
         calcValidationError();
 
-        if(RMSerrorvalidation<bestvalidation)
-        {
-            bestvalidation = RMSerrorvalidation;
-        }
 
         //Write to file for graph plotting
         fprintf(validationerrorfile,"%lf %lf \n",RMSerrortrain, \
                 RMSerrorvalidation);
-        printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf \
-                best =%lf\n",j,RMSerrortrain,RMSerrorvalidation, \
-               bestvalidation);
+        printf("After %d epoch, RmsTrain = %lf RMSvalidate = %lf best =%lf patience = %d\n",j,RMSerrortrain,RMSerrorvalidation, \
+               bestvalidation,patience);
 
 
         ///Early Stopping
@@ -657,9 +654,9 @@ int main(void)
 
         if(RMSerrorvalidation<stoping_error)
         {
-            if(RMSerrorvalidation<bestvalidation*0.99)
+            if(RMSerrorvalidation<bestvalidation*0.95)
             {
-                patience = j + patience;
+                patience = 600;
                 //            if (RMSerrorvalidation > moving_avg+0.1){
                 //                continue;
                 //            }
@@ -668,7 +665,7 @@ int main(void)
                 moving_avg,RMSerrorvalidation, \
                 (moving_avg-RMSerrorvalidation));
 
-                fprintf(test,"\n\n\n\ndifference => %f - %f = %lf\n", \
+                printf("\n\n\n\ndifference => %f - %f = %lf\n", \
                         moving_avg,RMSerrorvalidation, \
                         (moving_avg-RMSerrorvalidation));
                 //exit(0);
@@ -679,12 +676,23 @@ int main(void)
                 //}
             }
 
-//            if(j>= patience){
-//                printf("\n\nexit\n");
-//                exit(0);
-//                }
+
+
+        patience--;
+
+        if(patience<=0){
+                printf("\n\nexit\n");
+                exit(0);
+                }
 
         }
+        //patience--;
+
+        if(RMSerrorvalidation<bestvalidation)
+        {
+            bestvalidation = RMSerrorvalidation;
+        }
+
 
     }
 
