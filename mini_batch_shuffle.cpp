@@ -10,11 +10,11 @@
 #define numPatterns 1999
 #define numEpochs 30000
 #define stoping_error 0.05
-#define lR 0.0001
+#define lR 0.001
 #define train_ratio 0.7
 #define validate_ratio 0.3
 #define test_ratio 0.0
-#define mini_batch_size 50
+#define mini_batch_size 30
 
 #define mov_avg_range 3
 
@@ -72,7 +72,9 @@ double inputset1[numPatterns] = {0};
 double inputset2[numPatterns] = {0};
 double inputset3[numPatterns] = {0};
 double outputset[numPatterns] = {0};
-int minibatch_number = numPatterns/mini_batch_size;
+
+int train_minibatch_number = numPatterns*train_ratio/mini_batch_size;
+int validate_minibatch_number = numPatterns* validate_ratio/mini_batch_size;
 
 
 
@@ -434,7 +436,7 @@ void calcOverallError(void)
 {
     ///Calculate error during traing
     RMSerrortrain = 0.0;
-    for (int i = 0; i < numPatterns; ++i)
+    for (int i = 0; i < numPatterns*train_ratio; ++i)
     {
         patNum = i;
         forwardPass(trainInputs,trainOutput);
@@ -445,7 +447,7 @@ void calcOverallError(void)
                              (errThisPat[j] * errThisPat[j])) / output;
         }
     }
-    RMSerrortrain = RMSerrortrain / numPatterns;
+    RMSerrortrain = RMSerrortrain / (numPatterns*train_ratio);
     RMSerrortrain = sqrt(RMSerrortrain);
 }
 
@@ -454,9 +456,9 @@ void calcValidationError(void)
 {
     ///Calculate error during validation
     RMSerrorvalidation = 0.0;
-    for (int i = 0; i <= numPatterns / 5; ++i)
+    for (int i = numPatterns*train_ratio; i <= numPatterns*(1-test_ratio); ++i)
     {
-        patNum = i * 5;
+        patNum = i;
         forwardPass(validationinput,validationoutput);
         for (j = 0; j < output; ++j)
         {
@@ -465,7 +467,7 @@ void calcValidationError(void)
                                   (errThisPat[j] * errThisPat[j])) / output;
         }
     }
-    RMSerrorvalidation = RMSerrorvalidation / (numPatterns/5);
+    RMSerrorvalidation = RMSerrorvalidation / (numPatterns*validate_ratio);
     RMSerrorvalidation = sqrt(RMSerrorvalidation);
 
 }
@@ -621,13 +623,14 @@ int main(void)
     for (int j = 0; j <= numEpochs; ++j)
     {
         shuffle_data();
-        for (int i = 0; i < minibatch_number; ++i)
+        for (int i = 0; i < train_minibatch_number; ++i)
         {
             ///i represents mini batch index.
             for (int k = 0; k < mini_batch_size; ++k)
             {
 
                 patNum = i * mini_batch_size + k;
+                //printf("%d = %d * %d + %d\n",patNum,i,mini_batch_size,k);
                 //calculate the current network output
                 //and error for this pattern
                 forwardPass(trainInputs,trainOutput);
