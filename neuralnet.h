@@ -7,7 +7,7 @@
 - displayResults(void)
 - calcOverallError(void)
 - calcValidationError(void)
-- Calc_moving_average(double sample)
+-
 */
 
 void initData(void)
@@ -37,28 +37,33 @@ void initWeights(void)
 {
 
 
-    for (j = 0; j < hidden1; ++j)
+    for (i = 0; i < input; ++i)
     {
-        for (int i = 0; i < input; ++i)
+        for (int j = 0; j < hidden1; ++j)
         {
             weights1[i][j] = ((double) randrange());
-            //printf("\t%f\t",weights1[i][j]);
         }
     }
-    for (j = 0; j < hidden1; ++j)
+    for (i = 0; i < hidden1; ++i)
     {
-        for (int i = 0; i < hidden2; ++i)
+        for (int j = 0; j < hidden2; ++j)
         {
             weights2[i][j] = ((double) randrange());
+
         }
+
     }
 
-    for (j = 0; j < hidden2; ++j)
+    for (i = 0; i < hidden2; ++i)
     {
-        for (int i = 0; i < output; ++i)
+        for (int j = 0; j < output; ++j)
         {
             weights3[i][j] = ((double) randrange());
+            //printf("[%d] [%d] = %f\n",i,j,weights3[i][j]);
+
         }
+        //printf("\n");
+
     }
 }
 

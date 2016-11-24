@@ -5,7 +5,7 @@
 #define numPatterns 1999
 #define numEpochs 40000
 #define stoping_error 0.05
-#define lR 0.0008
+#define lR 0.001
 #define train_ratio 0.7
 #define validate_ratio 0.2
 #define test_ratio 0.1
@@ -37,7 +37,7 @@ int main(void)
     // initiate the weights
     initWeights();
 
-    // Loads input data for training and validation from file.
+    //Loads input data for training and validation from file.
     initData();
 
     // train the network
@@ -110,7 +110,13 @@ int main(void)
         {
             bestvalidation = RMSerrorvalidation;
             copyweights_biases();
-
+//            for(i=0;i<hidden1;i++){
+//                for(j=0;j<hidden2;j++){
+//                    printf("[%d][%d] = %lf ",i,j,weights2[i][j]);
+//                    }
+//                printf("\n");
+//
+//        }
         }
 
 
@@ -130,6 +136,6 @@ int main(void)
 
 
 
-    system("PAUSE");
+    //system("PAUSE");
     return 0;
 }
