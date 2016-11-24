@@ -110,13 +110,7 @@ int main(void)
         {
             bestvalidation = RMSerrorvalidation;
             copyweights_biases();
-            for(i=0;i<hidden1;i++){
-                for(j=0;j<hidden2;j++){
-                    printf("[%d][%d] = %lf ",i,j,bestweights2[i][j]);
-                    }
-                printf("\n");
 
-        }
         }
 
 
