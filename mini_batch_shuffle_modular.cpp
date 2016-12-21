@@ -5,7 +5,7 @@
 #define numPatterns 1999
 #define numEpochs 40000
 #define stoping_error 0.05
-#define lR 0.001
+#define lR 0.01
 #define train_ratio 0.7
 #define validate_ratio 0.2
 #define test_ratio 0.1

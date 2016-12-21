@@ -118,6 +118,8 @@ void forwardPass(double inputarray[][input], double outputarray[][output])
     for (i = 0; i < output; ++i)
     {
         errThisPat[i] = outputarray[patNum][i] - outPred[i];
+        /// Thats the individual output layer neuron prediction
+
     }
 }
 
@@ -129,6 +131,9 @@ void backprop(void)
 
     for (i = 0; i < output; ++i)
     {
+        //calculates output delta of each output neuron and stores it in 
+        //output_delta of size output(preprocessor directive)
+
         output_delta[i] = -(trainOutput[patNum][i] - outPred[i]) * \
                           outPred[i] * (1 - outPred[i]);//output neuron delta
         netoutputdelta[patNum][i] = output_delta[i];
@@ -136,8 +141,19 @@ void backprop(void)
 
 
     ///hidden2 to output delta weights
+
     for (i = 0; i < hidden2; ++i)
     {
+        /*  calculates weightedsum from a neuron in hidden 
+            layer2 to each neuron in output layer
+            and stores them in weightedsum variable.
+            hidden2delta[i] = weightedsum * hiddenVal2[i] * \
+                          (1 - hiddenVal2[i]);
+
+            nethidden2delta[patNum][i] : Stores individual 
+            hiddenlayer delta of each hiddenlayer neuron for 
+            each individual pattern.
+        */
         weightedsum = 0.0;
         for (j = 0; j < output; ++j)
         {
