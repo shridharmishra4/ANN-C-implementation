@@ -1,1 +1,1 @@
-# ANN-C-implementation
+# Artificial-neural-netowrks-in-C
